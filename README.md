@@ -1,2 +1,2 @@
 # webmention
-Automatically send webmentions
+Automatically send webmentions using GitHub Actions
