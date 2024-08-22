@@ -25,11 +25,13 @@ jobs:
               with:
                   repository: kaangiray26/webmention
 
-            - name: Download latest release to get json files
-              uses: actions/download-artifact@v4
+            - name: release-downloader
+              uses: robinraju/release-downloader@v1.11
               with:
-                  name: webmentions
-                  pattern: "*.json"
+                  latest: true
+                  fileName: "*.json"
+                  tarBall: false
+                  zipBall: false
 
             - name: Unnecessary pip install
               run: python3 -m pip install --upgrade pip
