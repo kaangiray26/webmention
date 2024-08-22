@@ -18,11 +18,18 @@ jobs:
     # Build job
     build:
         runs-on: ubuntu-latest
+        continue-on-error: true
         steps:
             - name: Checkout webmention repository
               uses: actions/checkout@v4
               with:
                   repository: kaangiray26/webmention
+
+            - name: Download latest release to get json files
+              uses: actions/download-artifact@v4
+              with:
+                  name: webmentions
+                  pattern: "*.json"
 
             - name: Unnecessary pip install
               run: python3 -m pip install --upgrade pip
@@ -36,6 +43,7 @@ jobs:
             - name: Release
               uses: softprops/action-gh-release@v2.0.6
               with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
                   files: |
                       ignored.json
                       sent.json
