@@ -43,8 +43,8 @@ jobs:
             - name: Release
               uses: softprops/action-gh-release@v2.0.6
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                  tag_name: webmentions
+                  token: ${{ secrets.TOKEN }}
                   files: |
                       ignored.json
                       sent.json
-                  tag_name: webmentions
