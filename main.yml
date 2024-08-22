@@ -1,0 +1,42 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# Sample workflow for automatically sending webmentions when a Jekyll site is built and deployed to GitHub Pages
+name: Send Webmentions
+
+on: deployment
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    # Build job
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout webmention repository
+              uses: actions/checkout@v4
+              with:
+                  repository: kaangiray26/webmention
+
+            - name: Unnecessary pip install
+              run: python3 -m pip install --upgrade pip
+
+            - name: Install python dependencies
+              run: python3 -m pip install -r requirements.txt
+
+            - name: Run python script
+              run: python3 main.py
+
+            - name: Release
+              uses: softprops/action-gh-release@v2.0.6
+              with:
+                  files: |
+                      ignored.json
+                      sent.json
+                  tag_name: webmentions
