@@ -18,7 +18,6 @@ jobs:
     # Build job
     build:
         runs-on: ubuntu-latest
-        continue-on-error: true
         steps:
             - name: Checkout webmention repository
               uses: actions/checkout@v4
@@ -26,6 +25,7 @@ jobs:
                   repository: kaangiray26/webmention
 
             - name: release-downloader
+              continue-on-error: true
               uses: robinraju/release-downloader@v1.11
               with:
                   latest: true
