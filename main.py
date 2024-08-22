@@ -123,7 +123,8 @@ class Webmention:
 
             # Add the domain to the ignored list
             domain = urlparse(url).netloc
-            self.ignored_domains.append(domain)
+            if domain not in self.ignored_domains:
+                self.ignored_domains.append(domain)
             return None
 
     def test_file_for_webmention(self, file):
