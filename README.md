@@ -1,4 +1,4 @@
-# webmention-action
+# webmention
 Automatically send webmentions using GitHub Actions
 
 ## About
