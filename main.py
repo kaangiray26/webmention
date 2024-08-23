@@ -55,7 +55,7 @@ class Webmention:
             }
             json.dump(data, f, indent=4, ensure_ascii=False)
 
-    def is_site_ignored(self, url):
+    def is_site_ignored(self, url) -> bool:
         # Get the domain
         domain = urlparse(url).netloc
         return domain not in self.ignored_domains
@@ -70,61 +70,70 @@ class Webmention:
                 "source": source,
                 "target": target
             }
-
-            with requests.post(endpoint, data=data) as r:
-                print(r.status_code, r.text)
+            try:
+                with requests.post(endpoint, data=data) as r:
+                    print(r.status_code, r.text)
+            except Exception as e:
+                print("Failed to send mention:", e)
+                continue
 
             # Add the mention to the sent list
             self.sent_mentions.append(target)
 
-    def get_urls_from_sitemap(self):
+    def get_urls_from_sitemap(self) -> list:
         with requests.get("https://www.buzl.uk/sitemap.xml") as r:
             if r.status_code != 200:
-                print(r.text)
                 raise Exception("Failed to fetch the sitemap!")
 
             # Parse the XML
             document = r.text.encode()
             tree = etree.fromstring(document)
             urls = tree.xpath("//sitemap:loc/text()", namespaces=self.namespace)
-        return urls
+            return urls
 
     def get_links_from_url(self, url) -> list:
-        with requests.get(url) as r:
-            if r.status_code != 200:
-                print("Failed to fetch:", url)
-                return []
+        try:
+            with requests.get(url) as r:
+                if r.status_code != 200:
+                    print("Failed to fetch:", url)
+                    return []
 
-            # Parse the HTML
-            document = r.text.encode()
-            tree = html.fromstring(document)
-            links = tree.xpath("//a[starts-with(@href, 'https://')]/@href")
+                # Parse the HTML
+                document = r.text.encode()
+                tree = html.fromstring(document)
+                links = tree.xpath("//a[starts-with(@href, 'https://')]/@href")
 
-            # Filter out ignored links
-            links = list(filter(self.is_site_ignored, links))
-
-        return links
+                # Filter out ignored links
+                links = list(filter(self.is_site_ignored, links))
+                return links
+        except Exception as e:
+            print("Failed to get links from URL:", e)
+            return []
 
     def get_webmention_endpoint(self, url):
         # Get the head tag from the URL
-        with requests.get(url) as r:
-            if r.status_code != 200:
-                print("Failed to fetch:", url)
-                return None
+        try:
+            with requests.get(url) as r:
+                if r.status_code != 200:
+                    print("Failed to fetch:", url)
+                    return None
 
-            # Parse the HTML
-            document = r.text
-            tree = html.fromstring(document)
-            links = tree.xpath(".//link[@rel='webmention']/@href")
+                # Parse the HTML
+                document = r.text
+                tree = html.fromstring(document)
+                links = tree.xpath(".//link[@rel='webmention']/@href")
 
-            # Check if the link is found
-            if len(links):
-                return links[0]
+                # Check if the link is found
+                if len(links):
+                    return links[0]
 
-            # Add the domain to the ignored list
-            domain = urlparse(url).netloc
-            if domain not in self.ignored_domains:
-                self.ignored_domains.append(domain)
+                # Add the domain to the ignored list
+                domain = urlparse(url).netloc
+                if domain not in self.ignored_domains:
+                    self.ignored_domains.append(domain)
+                    return None
+        except Exception as e:
+            print("Failed to get webmention endpoint:", e)
             return None
 
     def test_file_for_webmention(self, file):
